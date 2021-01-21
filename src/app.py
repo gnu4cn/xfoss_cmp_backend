@@ -9,7 +9,7 @@ api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 
 
-api.add_resource(HelloWorld, '/')
+api.add_resource(HelloWorld, '/', '/hello')
 api.add_resource(TodoList, '/todos')
 api.add_resource(Todo, '/todos/<todo_id>')
 

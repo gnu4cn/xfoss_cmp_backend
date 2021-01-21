@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "app"
+name = "xfoss-cmp-backend"
 version = "0.1.0"
 description = ""
 authors = ["Peng Hailin <unisko@gmail.com>"]
@@ -11,6 +11,8 @@ Flask = "^1.1.2"
 Flask-RESTful = "^0.3.8"
 uWSGI = "^2.0.19"
 gunicorn = "^20.0.4"
+Flask-Migrate = "^2.6.0"
+Flask-SQLAlchemy = "^2.4.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

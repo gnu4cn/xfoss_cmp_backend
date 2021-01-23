@@ -9,8 +9,8 @@ api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 
 
-api.add_resource(HelloWorld, '/', '/hello')
-api.add_resource(TodoList, '/todos')
-api.add_resource(Todo, '/todos/<todo_id>')
+api.add_resource(HelloWorld, '/api/', '/api/hello')
+api.add_resource(TodoList, '/api/todos')
+api.add_resource(Todo, '/api/todos/<todo_id>')
 
 app.register_blueprint(api_bp)

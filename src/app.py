@@ -1,8 +1,8 @@
 from flask import Flask, Blueprint
 from flask_restful import Resource, Api, url_for
 
-from src.resources.hello import HelloWorld
-from src.resources.todo import Todo, TodoList
+from .resources.hello import HelloWorld
+from .resources.todo import Todo, TodoList
 
 app = Flask(__name__)
 api_bp = Blueprint('api', __name__)

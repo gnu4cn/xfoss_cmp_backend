@@ -58,8 +58,8 @@ class CTyunNodeSize(NodeSize):
                 (self.id, self.name, self.cpu, self.ram, self.disk, self.disk, self.price, self.driver))
 
 
-        class CTyunConnection(ConnectionUserAndKey):
-            host = CTYUN_API_HOST
+class CTyunConnection(ConnectionUserAndKey):
+    host = CTYUN_API_HOST
     secure = True
     responseCls = CTyunResponse
     allow_insecure = True
@@ -735,11 +735,10 @@ class CTyunNodeDriver(NodeDriver):
         return json.loads(result.body)
 
     def _to_nodes(self, objects):
-        return [self._to_node(el)
-                for el in objects]
+        return [self._to_node(el) for el in objects]
 
-        def _to_node(self, element):
-            """
+    def _to_node(self, element):
+        """
         Conver the json data to a Node Object
         :param element: json element
         :return: a Node Object
@@ -761,8 +760,8 @@ class CTyunNodeDriver(NodeDriver):
                 public_ips=public_ips, private_ips=private_ips,
                 driver=self.connection.driver, extra=extra)
 
-        def _to_volume(self, element):
-            """
+    def _to_volume(self, element):
+        """
         Convert the json data to a Storage Volume Object
         :param element: json element
         :return: a Volume Object

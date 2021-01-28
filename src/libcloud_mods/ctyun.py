@@ -1,8 +1,9 @@
 import base64
+import hashlib
+import types
 
 from libcloud.utils.py3 import urlencode
 from libcloud.utils.py3 import b
-from libcloud.utils.misc import md5
 
 try:
     import simplejson as json
@@ -72,7 +73,6 @@ class CTyunConnection(ConnectionUserAndKey):
 
 class CTyunNodeDriver(NodeDriver):
     connectionCls = CTyunConnection
-    type = Provider.CTYUN
     api_name = 'ctyun'
     name = 'CTyun'
 
@@ -125,7 +125,7 @@ class CTyunNodeDriver(NodeDriver):
     # CTyun func#
     def list_zone(self):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey)
+                'vKey': self.md5(self.accesskey, self.screctkey)
                 }
         data = urlencode(data)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -136,7 +136,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def list_vm_type(self):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey)
+                'vKey': self.md5(self.accesskey, self.screctkey)
                 }
         data = urlencode(data)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -146,7 +146,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def list_os(self, zoneid):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, zoneid),
+                'vKey': self.md5(self.accesskey, self.screctkey, zoneid),
                 'zoneId': zoneid
                 }
         data = urlencode(data)
@@ -157,7 +157,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_new_order_price(self, cpu, memory, datahd, os, bw, ordernum, periodtype, periodnum, zoneid):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, cpu, memory, datahd, os, bw, ordernum, periodtype,
+                'vKey': self.md5(self.accesskey, self.screctkey, cpu, memory, datahd, os, bw, ordernum, periodtype,
                     periodnum, zoneid),
                 'cpu': cpu,
                 'memory': memory,
@@ -177,7 +177,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def buy_cloud(self, cpu, memory, datahd, os, bw, ordernum, periodtype, periodnum, zoneid):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, cpu, memory, datahd, os, bw, ordernum, periodtype,
+                'vKey': self.md5(self.accesskey, self.screctkey, cpu, memory, datahd, os, bw, ordernum, periodtype,
                     periodnum, zoneid),
                 'cpu': cpu,
                 'memory': memory,
@@ -197,7 +197,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_renew_order_price(self, periodtype, periodnum, vm_id):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, periodtype, periodnum, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, periodtype, periodnum, vm_id),
                 'periodType': periodtype,
                 'periodNum': periodnum,
                 'id': vm_id
@@ -210,7 +210,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def renew_cloud(self, periodtype, periodnum, vm_id):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, periodtype, periodnum, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, periodtype, periodnum, vm_id),
                 'periodType': periodtype,
                 'periodNum': periodnum,
                 'id': vm_id
@@ -223,7 +223,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_upgrade_order_price(self, cpu, memory, vm_id):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, cpu, memory, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, cpu, memory, vm_id),
                 'cpu': cpu,
                 'memory': memory,
                 'id': vm_id
@@ -236,7 +236,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def upgrade_cloud(self, cpu, memory, vm_id):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, cpu, memory, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, cpu, memory, vm_id),
                 'cpu': cpu,
                 'memory': memory,
                 'id': vm_id
@@ -249,7 +249,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_data_disk_price(self, datahd=10, periodnum=1, zoneid=1):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, datahd, periodnum, zoneid),
+                'vKey': self.md5(self.accesskey, self.screctkey, datahd, periodnum, zoneid),
                 'datahd': datahd,
                 'periodNum': periodnum,
                 'zoneId': zoneid
@@ -262,7 +262,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def buy_data_disk(self, datahd, periodnum=1, zoneid=1):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, datahd, periodnum, zoneid),
+                'vKey': self.md5(self.accesskey, self.screctkey, datahd, periodnum, zoneid),
                 'datahd': datahd,
                 'periodNum': periodnum,
                 'zoneId': zoneid
@@ -275,7 +275,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_renew_data_disk_price(self, disk_id, periodnum):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, disk_id, periodnum),
+                'vKey': self.md5(self.accesskey, self.screctkey, disk_id, periodnum),
                 'diskId': disk_id,
                 'periodNum': periodnum
                 }
@@ -287,7 +287,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def renew_data_disk(self, disk_id, periodnum):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, disk_id, periodnum),
+                'vKey': self.md5(self.accesskey, self.screctkey, disk_id, periodnum),
                 'diskId': disk_id,
                 'periodNum': periodnum
                 }
@@ -299,7 +299,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_upgrade_bandwidth_price(self, bw, zone_id, vm_id):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, bw, zone_id, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, bw, zone_id, vm_id),
                 'bw': bw,
                 'zoneId': zone_id,
                 'id': vm_id
@@ -312,7 +312,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def upgrade_bandwidth(self, bw, zone_id, vm_id):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, bw, zone_id, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, bw, zone_id, vm_id),
                 'bw': bw,
                 'zoneId': zone_id,
                 'id': vm_id
@@ -325,7 +325,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def pay_order(self, order_id, cash):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, order_id, cash),
+                'vKey': self.md5(self.accesskey, self.screctkey, order_id, cash),
                 'orderId': order_id,
                 'cash': cash
                 }
@@ -337,7 +337,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def refund_cloud(self, vm_id, refund_detail):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id, refund_detail),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id, refund_detail),
                 'id': vm_id,
                 'refundDetail': refund_detail
                 }
@@ -349,7 +349,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def refund_disk(self, disk_id, refund_detail):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, disk_id, refund_detail),
+                'vKey': self.md5(self.accesskey, self.screctkey, disk_id, refund_detail),
                 'diskId': disk_id,
                 'refundDetail': refund_detail
                 }
@@ -361,7 +361,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_order_list(self, page_no=1, page_size=2):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, page_no, page_size),
+                'vKey': self.md5(self.accesskey, self.screctkey, page_no, page_size),
                 'pageNo': page_no,
                 'pageSize': page_size
                 }
@@ -373,7 +373,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_order_detail(self, order_id):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, order_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, order_id),
                 'orderId': order_id
                 }
         data = urlencode(data)
@@ -384,7 +384,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def cancel_order(self, order_id):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, order_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, order_id),
                 'orderId': order_id
                 }
         data = urlencode(data)
@@ -395,7 +395,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def buy_trial_cloud(self, cpu, memory, datahd, os, bw, zone_id):
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, cpu, memory, datahd, os, bw, zone_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, cpu, memory, datahd, os, bw, zone_id),
                 'cpu': cpu,
                 'memory': memory,
                 'datahd': datahd,
@@ -414,7 +414,7 @@ class CTyunNodeDriver(NodeDriver):
         # int:pageSize, items of each page
         # int:uid, user id
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, page_no, page_size),
+                'vKey': self.md5(self.accesskey, self.screctkey, page_no, page_size),
                 'pageNo': page_no,
                 'pageSize': page_size}
         data = urlencode(data)
@@ -432,7 +432,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param order_id is empty')
 
         data = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, order_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, order_id),
                 'orderId': order_id}
         data = urlencode(data)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -446,7 +446,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id),
                 'id': vm_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -459,7 +459,7 @@ class CTyunNodeDriver(NodeDriver):
         if not vm_id:
             raise Exception('Invalid param vm_id is empty')
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id),
                 'id': vm_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -473,7 +473,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id),
                 'id': vm_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -487,7 +487,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id),
                 'id': vm_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -500,7 +500,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id),
                 'id': vm_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -513,7 +513,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id),
                 'id': vm_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -526,7 +526,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id),
                 'id': vm_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -539,7 +539,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id),
                 'id': vm_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -553,7 +553,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id, os_type),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id, os_type),
                 'id': vm_id,
                 'os': os_type}
         data = urlencode(request_body)
@@ -563,7 +563,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_data_disk_list(self, zone_id=1, page_no=1, page_size=1):
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, page_no, page_size, zone_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, page_no, page_size, zone_id),
                 'pageNo': page_no,
                 'pageSize': page_size,
                 'zoneId': zone_id, }
@@ -578,7 +578,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param order_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, order_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, order_id),
                 'orderId': order_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -592,7 +592,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id),
                 'id': vm_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -605,7 +605,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param disk_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, disk_id, new_name, zone_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, disk_id, new_name, zone_id),
                 'diskId': disk_id,
                 'newName': new_name,
                 'zoneId': zone_id}
@@ -623,7 +623,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, disk_id, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, disk_id, vm_id),
                 'diskId': disk_id,
                 'id': vm_id}
         data = urlencode(request_body)
@@ -640,7 +640,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, disk_id, vm_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, disk_id, vm_id),
                 'diskId': disk_id,
                 'id': vm_id}
         data = urlencode(request_body)
@@ -655,7 +655,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param disk_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, disk_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, disk_id),
                 'diskId': disk_id}
         data = urlencode(request_body)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -664,7 +664,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_snapshot_list(self, zone_id=1, page_no=1, page_size=1):
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, zone_id, page_no, page_size),
+                'vKey': self.md5(self.accesskey, self.screctkey, zone_id, page_no, page_size),
                 'pageNo': page_no,
                 'pageSize': page_size,
                 'zoneId': zone_id}
@@ -678,7 +678,7 @@ class CTyunNodeDriver(NodeDriver):
         if not vm_id:
             raise Exception('Invalid param vm_id is empty')
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id, snapshot_name),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id, snapshot_name),
                 'snapshotName': snapshot_name,
                 'id': vm_id}
         data = urlencode(request_body)
@@ -688,7 +688,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def get_vm_snapshot_status(self, snapshot_id, zone_id=1):
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, snapshot_id, zone_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, snapshot_id, zone_id),
                 'snapshotId': snapshot_id,
                 'zoneId': zone_id}
         data = urlencode(request_body)
@@ -701,7 +701,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param: vm_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id, snapshot_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id, snapshot_id),
                 'snapshotId': snapshot_id,
                 'id': vm_id}
         data = urlencode(request_body)
@@ -711,7 +711,7 @@ class CTyunNodeDriver(NodeDriver):
 
     def rollback_snapshot(self, zone_id, snapshot_id):
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, snapshot_id, zone_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, snapshot_id, zone_id),
                 'snapshotId': snapshot_id,
                 'zoneId': zone_id}
         data = urlencode(request_body)
@@ -726,7 +726,7 @@ class CTyunNodeDriver(NodeDriver):
             raise Exception('Invalid param: zone_id is empty')
 
         request_body = {'accessKey': self.accesskey,
-                'vKey': md5(self.accesskey, self.screctkey, vm_id, zone_id),
+                'vKey': self.md5(self.accesskey, self.screctkey, vm_id, zone_id),
                 'zoneId': zone_id,
                 'id': vm_id}
         data = urlencode(request_body)
@@ -782,3 +782,23 @@ class CTyunNodeDriver(NodeDriver):
 
         return StorageVolume(id=disk_id, name=name, size=int(size),
                 driver=self, state=state, extra=extra)
+
+    def md5(self, access_key='', secret_key='', *args):
+        """
+        :param access_key: accesskey
+        :param secret_key: secretKey
+        :param args: other post params
+        :return: md5 encoded vkey
+        """
+        m2 = hashlib.md5()
+        vkey = '' + access_key
+        for param in args:
+            if not isinstance(param, str): 
+                param = str(param)
+            vkey = vkey + '_' + param
+
+        vkey = vkey + '_' + secret_key
+        m2.update(vkey.encode('utf-8'))
+        # print vkey
+        print(m2.hexdigest())
+        return m2.hexdigest()
